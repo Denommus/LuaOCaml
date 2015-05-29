@@ -1,0 +1,25 @@
+OASISFormat: 0.4
+Name:        lua
+Version:     0.0.1
+Synopsis:    lua
+Authors:     Yuri da Costa Albuquerque
+License:     MIT
+Plugins:     META (0.4), DevFiles (0.4)
+BuildTools:   ocamlbuild
+
+Library luaparser
+  Modules: LuaParser
+  Path: src
+  BuildTools: menhir, ocamlbuild
+  BuildDepends: menhirLib
+  CompiledObject: best
+
+Executable lua
+  Path: src
+  MainIs: lua.ml
+  
+  CompiledObject: best
+  BuildDepends: sedlex, menhirLib, luaparser
+
+
+AlphaFeatures: ocamlbuild_more_args
