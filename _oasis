@@ -19,7 +19,7 @@ Executable lua
   MainIs: lua.ml
   
   CompiledObject: best
-  BuildDepends: sedlex, menhirLib, luaparser
+  BuildDepends: sedlex, menhirLib, luaparser, ppx_deriving.show
 
 
 AlphaFeatures: ocamlbuild_more_args

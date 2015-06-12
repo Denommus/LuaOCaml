@@ -1,5 +1,5 @@
 # OASIS_START
-# DO NOT EDIT (digest: cc1d919853a934b75b2602ef4dedf22f)
+# DO NOT EDIT (digest: 76900748b819772df817aec18229a85b)
 # Ignore VCS directories, you can use the same kind of rule outside
 # OASIS_START/STOP if you want to exclude directories that contains
 # useless stuff for the build process
@@ -19,9 +19,11 @@ true: annot, bin_annot
 true: use_menhir
 # Executable lua
 <src/lua.{native,byte}>: pkg_menhirLib
+<src/lua.{native,byte}>: pkg_ppx_deriving.show
 <src/lua.{native,byte}>: pkg_sedlex
 <src/lua.{native,byte}>: use_luaparser
 <src/*.ml{,i,y}>: pkg_menhirLib
+<src/*.ml{,i,y}>: pkg_ppx_deriving.show
 <src/*.ml{,i,y}>: pkg_sedlex
 <src/*.ml{,i,y}>: use_luaparser
 # OASIS_STOP
