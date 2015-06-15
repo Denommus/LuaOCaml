@@ -134,11 +134,13 @@ let rec lexer lexbuf =
   | '^'                                         -> update lexbuf; EXP
   | "("                                         -> update lexbuf; OPAR
   | ")"                                         -> update lexbuf; CPAR
+  | "["                                         -> update lexbuf; OBRA
+  | "]"                                         -> update lexbuf; CBRA
   | ('A' .. 'Z' | 'a' .. 'z'),
     Star ('A' .. 'Z' | 'a' .. 'z' | '0' .. '9') -> update lexbuf; ident_table @@ lexeme lexbuf
   | eof                                         -> update lexbuf; EOF
   | _                                           -> update lexbuf; raise_ParseError lexbuf
 
-let () = create_lexbuf @@ Sedlexing.Utf8.from_string "local foo = function (a, b) local a = 10; return a*b end"
+let () = create_lexbuf @@ Sedlexing.Utf8.from_string "foo[bar] = function (a, b) local c = 10; return a*b+c end"
          |> sedlex_with_menhir lexer chunk
          |> Ast.show_block |> print_endline

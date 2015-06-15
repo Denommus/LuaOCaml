@@ -1,4 +1,7 @@
-type funcname = FuncName of string list * string option [@@deriving show]
+type funcname = FuncName of var * bool
+
+and var = Name of string
+        | NestedVar of exp * exp
 
 and exp =
     Nil
@@ -7,10 +10,11 @@ and exp =
   | Number of string
   | String of string
   | Tripledot
-  | FunctionDef of funcbody
+  (* bool: Implicit self *)
+  | FunctionDef of funcbody * bool
   | Binop of string * exp * exp
   | Unop of string * exp
-  | Var of string
+  | Var of var
   | ExpNested of exp * string
   | FuncallPref of functioncall
 
@@ -24,7 +28,7 @@ and args =
 
 and stat =
     EmptyStat
-  | Assign of string list * exp list
+  | Assign of var list * exp list
   | FuncallStat of functioncall
   | Label of string
   | Break
@@ -35,9 +39,7 @@ and stat =
   | IfStat of exp * block * (exp * block) list * block option
   | ForStat of string * exp * exp * exp option * block
   | ForInStat of string list * exp list * block
-  | FuncStat of funcname * funcbody
-  | LocalFuncStat of string * funcbody
-  | LocalAssign of string list * exp list
+  | LocalAssign of var list * exp list option
 
 and funcbody = FuncBody of (string list * bool) * block
 

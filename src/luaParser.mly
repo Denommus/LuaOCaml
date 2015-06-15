@@ -28,7 +28,7 @@
 %token <string> STRING
 %token <string> NUMBER
 %token PLUS MINUS TIMES DIV MOD EXP (* + - * / % ^ *)
-%token OPAR CPAR (* ( ) *)
+%token OPAR CPAR OBRA CBRA (* ( ) [ ] *)
 %token NOT
 %left OR
 %left AND
@@ -68,16 +68,21 @@ stat:
  | DO block END { BlockStat $2 }
  | WHILE exp DO block END { WhileStat ($2, $4) }
  | REPEAT block UNTIL exp { RepeatStat ($4, $2) }
- | IF cond = exp THEN
-   body = block
-   elseifs = elseiflist
-   el = option(elsesta) { IfStat (cond, body, elseifs, el) }
+ | IF exp THEN
+   block
+   elseiflist
+   option(elsesta) { IfStat ($2, $4, $5, $6) }
  | FOR IDENT ASSIGN exp COMMA exp DO block END { ForStat ($2, $4, $6, None, $8) }
  | FOR IDENT ASSIGN exp COMMA exp COMMA exp DO block END { ForStat ($2, $4, $6, Some $8, $10) }
  | FOR namelist IN explist DO block END { ForInStat ($2, $4, $6) }
- | FUNCTION funcname funcbody { FuncStat ($2, $3) }
- | LOCAL FUNCTION IDENT funcbody { LocalFuncStat ($3, $4) }
- | LOCAL varlist ASSIGN explist { LocalAssign($2, $4) }
+ | FUNCTION funcname funcbody {
+     let FuncName (varname, has_self) = $2 in
+     Assign ([varname], [FunctionDef ($3, has_self)])
+   }
+ | LOCAL FUNCTION IDENT funcbody {
+     BlockStat (Block ([LocalAssign ([Name $3], None); Assign ([Name $3], [FunctionDef ($4, false)])], None))
+   }
+ | LOCAL namelist option(assignexplist) { LocalAssign (List.map (fun x -> Name x) $2, $3) }
 
 retstat:
    RETURN explist = separated_list(COMMA, exp) option(SEMI) { Retstat explist }
@@ -86,19 +91,36 @@ label: DOUBLECOLON IDENT DOUBLECOLON { $2 }
 
 colonname: COLON IDENT { $2 }
 
-funcname: l = separated_nonempty_list(COMMA, IDENT) o = option(colonname) { FuncName (l, o) }
+funcname: separated_nonempty_list(DOT, IDENT) option(colonname) {
+     match $2 with
+       Some name -> let rec convert = function
+         | x::[] -> NestedVar (Var (Name x), Var (Name name))
+         | x::xs -> NestedVar (Var (Name x), Var (convert xs))
+         | _ -> raise @@ Failure "weirdness" in
+       FuncName (convert $1, true)
+     | None -> let rec convert = function
+         | x::[] -> Name x
+         | x::xs -> NestedVar (Var (Name x), Var (convert xs))
+         | _ -> raise @@ Failure "weirdness" in
+       FuncName (convert $1, false)
+   }
 
 varlist:
-   l = separated_nonempty_list(COMMA, var) { l }
+   separated_nonempty_list(COMMA, var) { $1 }
 
 var:
-   IDENT { $1 }
+   IDENT { Name $1 }
+ | prefixexp OBRA exp CBRA { NestedVar ($1, $3) }
+ | prefixexp DOT IDENT { NestedVar ($1, Var (Name $3)) }
 
 namelist:
-   l = separated_nonempty_list(COMMA, IDENT) { l }
+   separated_nonempty_list(COMMA, IDENT) { $1 }
+
+assignexplist:
+     ASSIGN explist { $2 }
 
 explist:
-   l = separated_nonempty_list(COMMA, exp) { l }
+   separated_nonempty_list(COMMA, exp) { $1 }
 
 exp:
    NIL { Nil }
@@ -107,7 +129,7 @@ exp:
  | NUMBER { Number $1 }
  | STRING { String $1 }
  | TRIPLEDOT { Tripledot }
- | functiondef { FunctionDef $1 }
+ | functiondef { FunctionDef ($1, false) }
  | prefixexp { $1 }
  | e1 = exp
    b = binop
@@ -120,7 +142,6 @@ prefixexp:
    var { Var $1 }
  | functioncall { FuncallPref $1 }
  | OPAR exp CPAR { $2 }
- | prefixexp DOT IDENT { ExpNested ($1, $3) }
 
 functioncall:
    prefixexp args { Funcall ($1, $2) }
