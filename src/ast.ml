@@ -17,6 +17,7 @@ and exp =
   | Var of var
   | ExpNested of exp * string
   | FuncallPref of functioncall
+  | Table of field list
 
 and functioncall =
     Funcall of exp * args
@@ -40,6 +41,11 @@ and stat =
   | ForStat of string * exp * exp * exp option * block
   | ForInStat of string list * exp list * block
   | LocalAssign of var list * exp list option
+
+and field =
+    AssignField of exp * exp
+  | NameField of string * exp
+  | ExpField of exp
 
 and funcbody = FuncBody of (string list * bool) * block
 

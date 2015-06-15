@@ -28,7 +28,7 @@
 %token <string> STRING
 %token <string> NUMBER
 %token PLUS MINUS TIMES DIV MOD EXP (* + - * / % ^ *)
-%token OPAR CPAR OBRA CBRA (* ( ) [ ] *)
+%token OPAR CPAR OBRA CBRA OCUR CCUR (* ( ) [ ] { } *)
 %token NOT
 %left OR
 %left AND
@@ -131,6 +131,7 @@ exp:
  | TRIPLEDOT { Tripledot }
  | functiondef { FunctionDef ($1, false) }
  | prefixexp { $1 }
+ | tableconstructor { $1 }
  | e1 = exp
    b = binop
    e2 = exp { Binop (b, e1, e2) }
@@ -158,6 +159,17 @@ funcbody: OPAR parlist CPAR block END { FuncBody ($2, $4) }
 commatripledot: COMMA TRIPLEDOT { }
 
 parlist: n = namelist o = option(commatripledot) { n, match o with Some _ -> true | None -> false }
+
+tableconstructor: OCUR fieldlist CCUR { Table $2 }
+
+fieldlist: l = separated_list(fieldsep, field) { l }
+
+field:
+   OBRA exp CBRA ASSIGN exp { AssignField ($2, $5) }
+ | IDENT ASSIGN exp { NameField ($1, $3) }
+ | exp { ExpField $1 }
+
+fieldsep: COMMA { } | SEMI { }
 
 %inline binop:
  | AND { "and" }
