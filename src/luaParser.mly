@@ -1,5 +1,8 @@
 %{
   open Ast
+  let rec zip l1 l2 = match (l1, l2) with
+      ([], _) | (_, []) -> []
+    | (x::xs, y::ys)    -> (x, y) :: zip xs ys
 %}
 %token EOF
 %token GOTO
@@ -60,7 +63,7 @@ elsesta:
 
 stat:
    SEMI { EmptyStat }
- | varlist ASSIGN explist { Assign ($1, $3) }
+ | varlist ASSIGN explist { Assign (zip $1 $3) }
  | functioncall { FuncallStat $1 }
  | label { Label $1 }
  | BREAK { Break }
@@ -77,10 +80,12 @@ stat:
  | FOR namelist IN explist DO block END { ForInStat ($2, $4, $6) }
  | FUNCTION funcname funcbody {
      let FuncName (varname, has_self) = $2 in
-     Assign ([varname], [FunctionDef ($3, has_self)])
+     let FuncBody (paramlist, block) = $3 in
+     let funcbody = FuncBody ((if has_self then "self" :: paramlist else paramlist), block) in
+     Assign (zip [varname] [FunctionDef funcbody])
    }
  | LOCAL FUNCTION IDENT funcbody {
-     BlockStat (Block ([LocalAssign ([Name $3], None); Assign ([Name $3], [FunctionDef ($4, false)])], None))
+     BlockStat (Block ([LocalAssign ([Name $3], None); Assign (zip [Name $3] [FunctionDef ($4)])], None))
    }
  | LOCAL namelist option(assignexplist) { LocalAssign (List.map (fun x -> Name x) $2, $3) }
 
@@ -129,7 +134,7 @@ exp:
  | NUMBER { Number $1 }
  | STRING { String $1 }
  | TRIPLEDOT { Tripledot }
- | functiondef { FunctionDef ($1, false) }
+ | functiondef { FunctionDef ($1) }
  | prefixexp { $1 }
  | tableconstructor { $1 }
  | e1 = exp
@@ -146,10 +151,12 @@ prefixexp:
 
 functioncall:
    prefixexp args { Funcall ($1, $2) }
- | prefixexp COLON IDENT args { FuncallColon ($1, $3, $4) }
+ | prefixexp COLON IDENT args {
+     Funcall (Var (NestedVar ($1, Var (Name $3))), Var (Name $3) :: $4)
+   }
 
 args:
-   OPAR explist = separated_list(COMMA, exp) CPAR { ExpArgs explist }
+   OPAR explist = separated_list(COMMA, exp) CPAR { explist }
 
 functiondef:
    FUNCTION funcbody { $2 }
@@ -158,7 +165,7 @@ funcbody: OPAR parlist CPAR block END { FuncBody ($2, $4) }
 
 commatripledot: COMMA TRIPLEDOT { }
 
-parlist: n = namelist o = option(commatripledot) { n, match o with Some _ -> true | None -> false }
+parlist: n = namelist o = option(commatripledot) { match o with Some _ -> "self" :: n | None -> n }
 
 tableconstructor: OCUR fieldlist CCUR { Table $2 }
 

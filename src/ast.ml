@@ -11,7 +11,7 @@ and exp =
   | String of string
   | Tripledot
   (* bool: Implicit self *)
-  | FunctionDef of funcbody * bool
+  | FunctionDef of funcbody
   | Binop of string * exp * exp
   | Unop of string * exp
   | Var of var
@@ -20,16 +20,11 @@ and exp =
   | Table of field list
 
 and functioncall =
-    Funcall of exp * args
-  | FuncallColon of exp * string * args
-
-and args =
-    ExpArgs of exp list
-  | StringArgs of string
+    Funcall of exp * exp list
 
 and stat =
     EmptyStat
-  | Assign of var list * exp list
+  | Assign of (var * exp) list
   | FuncallStat of functioncall
   | Label of string
   | Break
@@ -47,7 +42,7 @@ and field =
   | NameField of string * exp
   | ExpField of exp
 
-and funcbody = FuncBody of (string list * bool) * block
+and funcbody = FuncBody of (string list) * block
 
 and retstat = Retstat of exp list
 
