@@ -10,7 +10,6 @@ and exp =
   | Number of string
   | String of string
   | Tripledot
-  (* bool: Implicit self *)
   | FunctionDef of funcbody
   | Binop of string * exp * exp
   | Unop of string * exp
@@ -42,7 +41,8 @@ and field =
   | NameField of string * exp
   | ExpField of exp
 
-and funcbody = FuncBody of (string list) * block
+(* bool: vararg *)
+and funcbody = FuncBody of (string list * bool) * block
 
 and retstat = Retstat of exp list
 

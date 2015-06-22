@@ -80,8 +80,8 @@ stat:
  | FOR namelist IN explist DO block END { ForInStat ($2, $4, $6) }
  | FUNCTION funcname funcbody {
      let FuncName (varname, has_self) = $2 in
-     let FuncBody (paramlist, block) = $3 in
-     let funcbody = FuncBody ((if has_self then "self" :: paramlist else paramlist), block) in
+     let FuncBody ((paramlist, vararg), block) = $3 in
+     let funcbody = FuncBody (((if has_self then "self" :: paramlist else paramlist), vararg), block) in
      Assign (zip [varname] [FunctionDef funcbody])
    }
  | LOCAL FUNCTION IDENT funcbody {
@@ -165,7 +165,7 @@ funcbody: OPAR parlist CPAR block END { FuncBody ($2, $4) }
 
 commatripledot: COMMA TRIPLEDOT { }
 
-parlist: n = namelist o = option(commatripledot) { match o with Some _ -> "self" :: n | None -> n }
+parlist: n = namelist o = option(commatripledot) { n, match o with Some _ -> true | None -> false }
 
 tableconstructor: OCUR fieldlist CCUR { Table $2 }
 
