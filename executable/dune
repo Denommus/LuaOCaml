@@ -1,0 +1,4 @@
+(executable
+ (name LuaOCaml)
+ (public_name LuaOCaml)
+ (libraries sedlex menhirLib lua))

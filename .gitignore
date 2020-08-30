@@ -6,3 +6,5 @@ setup.log
 *.mldylib
 *.mllib
 META
+_esy
+.merlin

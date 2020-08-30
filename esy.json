@@ -1,0 +1,15 @@
+{
+  "name": "LuaOCaml",
+  "dependencies": {
+    "@opam/dune": "2.7.0",
+    "@opam/menhir": "20200624",
+    "@opam/sedlex": "2.2",
+    "ocaml": "^4.11.0"
+  },
+  "devDependencies": {
+    "@opam/ocaml-lsp-server": "ocaml/ocaml-lsp:ocaml-lsp-server.opam",
+    "@opam/ppx_deriving": "4.5",
+    "@opam/utop": "2.6.0"
+  },
+  "esy": { "build": "dune build -p #{self.name}", "buildDev": "dune build" }
+}

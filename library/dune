@@ -1,0 +1,8 @@
+(menhir
+  (modules luaParser))
+
+(library
+ (name lua)
+ (libraries menhirLib sedlex)
+ (preprocess
+  (pps sedlex.ppx ppx_deriving.show)))
