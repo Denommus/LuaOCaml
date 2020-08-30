@@ -25,17 +25,21 @@ let ident_table = function
   | "goto"     -> GOTO
   | x          -> IDENT x
 
+let digit = [%sedlex.regexp? '0'..'9']
+let number = [%sedlex.regexp? Plus digit, Opt ('.', Plus digit)]
+let string = [%sedlex.regexp? ('"', Star (('\\', any) | Sub (any, '"')), '"')
+             | ('\'', Star (('\\', any) | Sub (any, '\'')), '\'')]
+
 let rec lexer lexbuf =
-  let digit = [%sedlex.regexp? '0'..'9'] in
-  let number = [%sedlex.regexp? Plus digit, Opt ('.', Plus digit)] in
-  (* let string = [%sedlex.regexp? '"', Star ((Sub (any, '\\')) | "\\\\" | "\\\""), '"'] in *)
   let buf = lexbuf.stream in
   match%sedlex buf with
   | '\n'                                        -> update lexbuf;
-    new_line lexbuf;
-    lexer lexbuf;
+                                                   new_line lexbuf;
+                                                   lexer lexbuf;
   | white_space                                 -> update lexbuf; lexer lexbuf
   | number                                      -> update lexbuf; NUMBER (lexeme lexbuf)
+  | string                                      -> update lexbuf; STRING (sub_lexeme lexbuf 1 @@
+                                                                            (lexeme_length lexbuf) - 2)
   | "::"                                        -> update lexbuf; DOUBLECOLON
   | ':'                                         -> update lexbuf; COLON
   | ';'                                         -> update lexbuf; SEMI

@@ -33,6 +33,10 @@ let update lexbuf =
 (** The last matched word. *)
 let lexeme { stream; _ } = Sedlexing.Utf8.lexeme stream
 
+let sub_lexeme { stream; _ } i len = Sedlexing.Utf8.sub_lexeme stream i len
+
+let lexeme_length { stream; _ } = Sedlexing.lexeme_length stream
+
 
 (** [ParseError (file, line, col, token)] *)
 exception ParseError of (string * int * int * string)
