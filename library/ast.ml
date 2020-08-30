@@ -1,3 +1,27 @@
+type unop =
+  UMinus
+| Not
+| Octo
+[@@deriving show]
+
+type binop =
+  And
+| Or
+| Plus
+| Minus
+| Times
+| Div
+| Mod
+| Exp
+| DoubleDot
+| Lt
+| Lte
+| Gt
+| Gte
+| Eq
+| Diff
+[@@deriving show]
+
 type funcname = FuncName of var * bool
 
 and var = Name of string
@@ -47,26 +71,4 @@ and funcbody = FuncBody of (string list * bool) * block
 and retstat = Retstat of exp list
 
 and block = Block of stat list * retstat option
-
-and unop =
-  UMinus
-| Not
-| Octo
-
-and binop =
-  And
-| Or
-| Plus
-| Minus
-| Times
-| Div
-| Mod
-| Exp
-| DoubleDot
-| Lt
-| Lte
-| Gt
-| Gte
-| Eq
-| Diff
 [@@deriving show]

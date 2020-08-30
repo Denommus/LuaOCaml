@@ -31,7 +31,7 @@ let string = [%sedlex.regexp? ('"', Star (('\\', any) | Sub (any, '"')), '"')
              | ('\'', Star (('\\', any) | Sub (any, '\'')), '\'')]
 
 let rec lexer lexbuf =
-  let buf = lexbuf.stream in
+  let buf = lexbuf_stream lexbuf in
   match%sedlex buf with
   | '\n'                                        -> update lexbuf;
                                                    new_line lexbuf;

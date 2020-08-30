@@ -4,6 +4,8 @@ type lexbuf = {
   mutable pos : Lexing.position ;
 }
 
+let lexbuf_stream lexbuf = lexbuf.stream
+
 (** Initialize with the null position. *)
 let create_lexbuf ?(file="") stream =
   let pos = {Lexing.
