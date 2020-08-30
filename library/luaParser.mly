@@ -131,7 +131,7 @@ exp:
    NIL { Nil }
  | FALSE { False }
  | TRUE { True }
- | NUMBER { Number $1 }
+ | NUMBER { Number (float_of_string $1) }
  | STRING { String $1 }
  | TRIPLEDOT { Tripledot }
  | functiondef { FunctionDef ($1) }
@@ -140,9 +140,9 @@ exp:
  | e1 = exp
    b = binop
    e2 = exp { Binop (b, e1, e2) }
- | MINUS exp %prec UMINUS { Unop ("-", $2) }
- | NOT exp { Unop ("not", $2) }
- | OCTO exp { Unop ("#", $2) }
+ | MINUS exp %prec UMINUS { Unop (UMinus, $2) }
+ | NOT exp { Unop (Not, $2) }
+ | OCTO exp { Unop (Octo, $2) }
 
 prefixexp:
    var { Var $1 }
@@ -179,18 +179,18 @@ field:
 fieldsep: COMMA { } | SEMI { }
 
 %inline binop:
- | AND { "and" }
- | OR { "or" }
- | PLUS { "+" }
- | MINUS { "-" }
- | TIMES { "*" }
- | DIV { "/" }
- | MOD { "%" }
- | EXP { "^" }
- | DOUBLEDOT { ".." }
- | LT { "<" }
- | LTE { "<=" }
- | GT { ">" }
- | GTE { ">=" }
- | EQ { "==" }
- | DIFF { "=~" }
+ | AND { And }
+ | OR { Or }
+ | PLUS { Plus }
+ | MINUS { Minus }
+ | TIMES { Times }
+ | DIV { Div }
+ | MOD { Mod }
+ | EXP { Exp }
+ | DOUBLEDOT { DoubleDot }
+ | LT { Lt }
+ | LTE { Lte }
+ | GT { Gt }
+ | GTE { Gte }
+ | EQ { Eq }
+ | DIFF { Diff }
