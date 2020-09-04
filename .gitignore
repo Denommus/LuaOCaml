@@ -8,3 +8,5 @@ setup.log
 META
 _esy
 .merlin
+result
+*.install
