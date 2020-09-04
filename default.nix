@@ -20,6 +20,8 @@ ocamlPackages.buildDunePackage rec {
     ppx_deriving
     menhir
     sedlex_2
+    nodePackages.ocaml-language-server
+    merlin
   ];
 
   buildPhase = "dune build -p ${pname}";
